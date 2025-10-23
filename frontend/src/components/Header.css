@@ -1,0 +1,132 @@
+.header-container {
+    width: 100%;
+    height: 70px;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: fixed;
+    top: 0;
+    z-index: 999;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.logo {
+    color: #00f2ff;
+    font-size: 28px;
+    font-weight: 800;
+    text-decoration: none;
+    text-shadow: 0 0 20px rgba(0, 242, 255, 0.6);
+    transition: all 0.3s ease;
+    animation: logoGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes logoGlow {
+    from {
+        text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+    }
+    to {
+        text-shadow: 0 0 30px rgba(0, 242, 255, 0.8), 0 0 40px rgba(255, 107, 157, 0.3);
+    }
+}
+
+.logo:hover {
+    color: #fff;
+    text-shadow: 0 0 30px rgba(0, 242, 255, 0.9);
+}
+
+.nav-link {
+    color: #b8c5d1;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-link:hover {
+    color: #00f2ff;
+    background: rgba(0, 242, 255, 0.1);
+}
+
+.favoritos {
+    background: linear-gradient(135deg, #00f2ff 0%, #ff6b9d 100%);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 242, 255, 0.2);
+}
+
+.favoritos:hover {
+    background: linear-gradient(135deg, #00d9ff 0%, #ff4d8a 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 242, 255, 0.4);
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        padding: 0 15px;
+    }
+    
+    .logo {
+        font-size: 24px;
+    }
+    
+    .nav-links {
+        gap: 0.5rem;
+    }
+    
+    .nav-link {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+    
+    .favoritos {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-container {
+        height: 60px;
+    }
+    
+    .logo {
+        font-size: 20px;
+    }
+    
+    .nav-links {
+        gap: 0.3rem;
+    }
+    
+    .nav-link {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+    }
+    
+    .favoritos {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+    }
+}
