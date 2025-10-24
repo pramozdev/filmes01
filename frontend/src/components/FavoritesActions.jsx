@@ -18,10 +18,10 @@ const FavoritesActions = ({ favorites, onSaveSuccess, onError }) => {
       onSaveSuccess(response);
     } catch (error) {
       console.error('Erro ao salvar favoritos:', error);
-      
+
       // Tratamento de erros mais específico
       if (error.response) {
-        // Erro do servidor
+        // O backend respondeu informando o tipo de falha
         const status = error.response.status;
         const message = error.response.data?.message || error.response.data?.detail;
         
@@ -33,10 +33,10 @@ const FavoritesActions = ({ favorites, onSaveSuccess, onError }) => {
           onError(`Erro do servidor (${status}): ${message || 'Tente novamente.'}`);
         }
       } else if (error.request) {
-        // Erro de rede
-        onError('Erro de conexão. Verifique se o backend está rodando em http://localhost:8000');
+        // Falha na comunicação (requisição não recebeu resposta)
+        onError('Erro de conexão. Verifique se o backend está rodando em http://localhost:9000');
       } else {
-        // Outros erros
+        // Erros inesperados (ex.: falha ao montar requisição)
         onError('Erro inesperado. Tente novamente.');
       }
     } finally {

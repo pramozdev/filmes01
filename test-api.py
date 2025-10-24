@@ -7,7 +7,7 @@ import requests
 import json
 
 # URL base da API
-BASE_URL = "http://localhost:8000/api"
+BASE_URL = "http://localhost:9000/api"
 
 # Dados de teste
 test_data = {
@@ -45,7 +45,7 @@ def test_save_favorites():
             return None
             
     except requests.exceptions.ConnectionError:
-        print("❌ Erro de conexão. Verifique se o backend está rodando em http://localhost:8000")
+        print("❌ Erro de conexão. Verifique se o backend está rodando em http://localhost:9000")
         return None
     except Exception as e:
         print(f"❌ Erro inesperado: {e}")

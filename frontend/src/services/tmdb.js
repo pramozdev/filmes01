@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '3e831d4c034a4ca7c81640da93ee7764';
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+
+if (!TMDB_API_KEY) {
+  console.warn('[tmdbService] VITE_TMDB_API_KEY não foi definido. Solicitações à TMDb irão falhar até que a chave seja configurada.');
+}
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 
 const tmdbApi = axios.create({
@@ -12,7 +16,7 @@ const tmdbApi = axios.create({
 });
 
 export const tmdbService = {
-  // Buscar filmes por query
+  // Busca filmes por texto digitado pelo usuário
   searchMovies: async (query, page = 1) => {
     try {
       const response = await tmdbApi.get('/search/movie', {
@@ -29,7 +33,7 @@ export const tmdbService = {
     }
   },
 
-  // Buscar filmes populares
+  // Busca lista paginada dos filmes mais populares do momento
   getPopularMovies: async (page = 1) => {
     try {
       const response = await tmdbApi.get('/movie/popular', {
@@ -42,7 +46,7 @@ export const tmdbService = {
     }
   },
 
-  // Buscar detalhes de um filme específico
+  // Busca dados detalhados de um filme específico
   getMovieDetails: async (movieId) => {
     try {
       const response = await tmdbApi.get(`/movie/${movieId}`);
@@ -53,7 +57,7 @@ export const tmdbService = {
     }
   },
 
-  // Buscar trailers de um filme
+  // Busca trailers associados a um filme
   getMovieTrailers: async (movieId) => {
     try {
       const response = await tmdbApi.get(`/movie/${movieId}/videos`);
@@ -64,9 +68,9 @@ export const tmdbService = {
     }
   },
 
-  // Formatar URL da imagem
+  // Monta a URL do poster; se a API não devolver caminho, usamos uma imagem genérica
   getImageUrl: (path, size = 'w500') => {
-    if (!path) return 'https://via.placeholder.com/500x750?text=No+Image';
+    if (!path) return 'https://via.placeholder.com/500x750?text=Imagem+indispon%C3%ADvel';
     return `https://image.tmdb.org/t/p/${size}${path}`;
   },
 };

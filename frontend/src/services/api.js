@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = 'http://localhost:9000/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -10,7 +10,7 @@ const api = axios.create({
 });
 
 export const favoritesService = {
-  // Salvar lista de favoritos
+  // Envia os dados para criação/atualização de uma lista de favoritos
   saveFavorites: async (name, movies) => {
     try {
       console.log('Enviando dados para salvar:', { name, movies: movies.length });
@@ -33,7 +33,7 @@ export const favoritesService = {
     }
   },
 
-  // Buscar lista compartilhada
+  // Recupera uma lista compartilhada pelo ID
   getSharedList: async (listId) => {
     try {
       const response = await api.get(`/shared/${listId}/`);
@@ -44,7 +44,7 @@ export const favoritesService = {
     }
   },
 
-  // Listar todas as listas salvas
+  // Retorna todas as listas salvas no backend
   getAllLists: async () => {
     try {
       const response = await api.get('/lists/');
@@ -55,7 +55,7 @@ export const favoritesService = {
     }
   },
 
-  // Criar nova lista de favoritos
+  // Cria uma nova lista de favoritos manualmente
   createFavoriteList: async (data) => {
     try {
       const response = await api.post('/create/', data);
@@ -66,7 +66,7 @@ export const favoritesService = {
     }
   },
 
-  // Buscar detalhes de uma lista
+  // Busca detalhes de uma lista específica
   getFavoriteList: async (listId) => {
     try {
       const response = await api.get(`/${listId}/`);
@@ -77,7 +77,7 @@ export const favoritesService = {
     }
   },
 
-  // Excluir uma lista de favoritos
+  // Remove uma lista de favoritos
   deleteFavoriteList: async (listId) => {
     try {
       const response = await api.delete(`/${listId}/`);

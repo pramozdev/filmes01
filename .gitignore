@@ -1,0 +1,28 @@
+# Python
+backend/venv/
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Django
+backend/db.sqlite3
+*.sqlite3
+
+# Node / React
+frontend/node_modules/
+frontend/dist/
+
+# Logs & env files
+*.log
+.env
+.env.*
+!*.env.example
+!*/.env.example
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+
+# Legacy snapshots
+movie-app-new/
