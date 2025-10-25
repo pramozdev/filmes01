@@ -104,8 +104,6 @@
 
 /* Botão Voltar ao Topo */
 .back-to-top {
-    position: fixed;
-    bottom: 30px;
     right: 30px;
     width: 50px;
     height: 50px;
@@ -123,12 +121,30 @@
     z-index: 1000;
     opacity: 0;
     transform: translateY(20px);
-    animation: fadeIn 0.3s ease forwards;
+    pointer-events: none;
 }
 
 .back-to-top.visible {
     opacity: 1;
     transform: translateY(0);
+    pointer-events: auto;
+}
+
+.back-to-top:hover {
+    background: #00f2ff;
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 0 30px rgba(0, 242, 255, 0.8);
+}
+
+/* Quando estiver no final da página */
+.footer-container {
+    position: relative;
+}
+
+.back-to-top.at-bottom {
+    position: absolute;
+    bottom: 20px;
+    right: 30px;
 }
 
 .back-to-top:hover {
@@ -177,6 +193,36 @@
     font-size: 0.8rem;
     margin-top: 1rem;
     display: block;
+}
+
+.copyright a.dev-link {
+    color: #00f2ff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+    display: inline-block;
+    margin-left: 4px;
+}
+
+.copyright a.dev-link:hover {
+    color: #fff;
+    text-shadow: 0 0 10px rgba(0, 242, 255, 0.7);
+}
+
+.copyright a.dev-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 1px;
+    bottom: -2px;
+    left: 0;
+    background-color: #00f2ff;
+    transition: width 0.3s ease;
+}
+
+.copyright a.dev-link:hover::after {
+    width: 100%;
 }
 
 .heart-icon {
