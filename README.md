@@ -1,4 +1,20 @@
-# 🎬 Movie Favorites Manager
+<div align="center">
+  <h1>🎬 Movie Favorites Manager</h1>
+  
+  [![GitHub license](https://img.shields.io/github/license/pramozdev/filmes01?style=flat-square)](https://github.com/pramozdev/filmes01/blob/main/LICENSE)
+  [![GitHub last commit](https://img.shields.io/github/last-commit/pramozdev/filmes01?style=flat-square)](https://github.com/pramozdev/filmes01/commits/main)
+  [![GitHub stars](https://img.shields.io/github/stars/pramozdev/filmes01?style=social)](https://github.com/pramozdev/filmes01/stargazers)
+  [![GitHub forks](https://img.shields.io/github/forks/pramozdev/filmes01?style=social)](https://github.com/pramozdev/filmes01/network/members)
+  
+  [![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white)](https://vitejs.dev/)
+  [![React](https://img.shields.io/badge/React-61DAFB?style=flat&logo=react&logoColor=black)](https://reactjs.org/)
+  [![Django](https://img.shields.io/badge/Django-092E20?style=flat&logo=django&logoColor=white)](https://www.djangoproject.com/)
+  [![Django REST](https://img.shields.io/badge/DJANGO-REST-ff1709?style=flat&logo=django&logoColor=white&color=ff1709&labelColor=gray)](https://www.django-rest-framework.org/)
+  
+  [![Acesse o Projeto](https://img.shields.io/badge/🌐-Acesse%20o%20Projeto-2ea44f?style=for-the-badge)](https://pramozdev.github.io/listafilmes)
+</div>
+
+---
 
 Aplicação full stack para pesquisar filmes na TMDb, assistir trailers do YouTube, montar múltiplas listas de favoritos e compartilhá-las. O frontend foi construído com React + Vite e o backend com Django + Django REST Framework.
 
@@ -23,6 +39,15 @@ Aplicação full stack para pesquisar filmes na TMDb, assistir trailers do YouTu
 - Endpoints REST para criar, listar, detalhar e excluir listas de favoritos.
 - Respostas normalizadas com UUID, nome, timestamp, filmes e URL de compartilhamento.
 - Tratamento de erros com mensagens claras para o frontend.
+
+## 📸 Capturas de Tela
+
+<div align="center">
+  <img src="./screenshots/home.png" alt="Página Inicial" width="45%">
+  <img src="./screenshots/movie-detail.png" alt="Detalhes do Filme" width="45%">
+  <img src="./screenshots/lists.png" alt="Listas de Favoritos" width="45%">
+  <img src="./screenshots/shared-list.png" alt="Lista Compartilhada" width="45%">
+</div>
 
 ## 🚀 Como Executar Localmente
 
@@ -125,13 +150,15 @@ projeto002/
 └── README.md
 ```
 
-## ✅ Checklist de Funcionalidades
+## 🔗 Endpoints Principais
 
-- [x] Busca na TMDb com feedback rápido
-- [x] Exibição de trailers do YouTube
-- [x] Player de vídeo responsivo
-- [x] Alternar entre múltiplos trailers
-- [x] Busca automática de trailers no YouTube quando não disponíveis na TMDb
+| Método | Rota                | Descrição                                 |
+|--------|---------------------|--------------------------------------------|
+| POST   | `/api/save/`        | Salva uma nova lista de favoritos e retorna a lista completa, incluindo link de compartilhamento |
+| GET    | `/api/lists/`       | Retorna todas as listas salvas ordenadas do mais recente ao antigo |
+| GET    | `/api/<uuid>/`      | Detalha uma lista específica |
+| DELETE | `/api/<uuid>/`      | Remove uma lista e retorna mensagem de sucesso |
+| GET    | `/api/shared/<id>/` | Recupera uma lista pública via link compartilhável |
 - [x] Favoritar/desfavoritar filmes
 - [x] Salvar lista nomeada e gerar link compartilhável
 - [x] Gerenciar múltiplas listas (selecionar, visualizar, excluir)
