@@ -1,5 +1,7 @@
-from .base import *
+# Importar configurações de desenvolvimento por padrão
+from .development import *
 
-# Importar configurações de produção apenas se não estiver em desenvolvimento
-if not DEBUG:
+# Em produção, sobrescrever com as configurações de produção
+import os
+if os.getenv('ENV') == 'production':
     from .production import *

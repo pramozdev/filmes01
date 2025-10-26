@@ -1,0 +1,41 @@
+services:
+  # Backend (Django)
+  - type: web
+    name: movie-api
+    env: python
+    buildCommand: pip install -r backend/requirements.txt && python backend/manage.py migrate && python backend/manage.py collectstatic --noinput
+    startCommand: gunicorn movie_project.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0
+      - key: DJANGO_SETTINGS_MODULE
+        value: movie_project.settings.production
+      - key: DJANGO_ALLOWED_HOSTS
+        value: "movie-api.onrender.com"
+      - key: CORS_ALLOWED_ORIGINS
+        value: "https://movie-favorites.onrender.com"
+      - key: DEBUG
+        value: "False"
+      # Adicione suas variáveis de ambiente aqui
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: movie-db
+          property: connectionString
+
+  # Frontend (React)
+  - type: static_site
+    name: movie-favorites
+    buildCommand: cd frontend && npm install && npm run build
+    publicPath: /frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://movie-api.onrender.com
+
+# Database (PostgreSQL)
+databases:
+  - name: movie-db
+    databaseName: movie_db
+    user: movie_user
+    plan: free
