@@ -1,10 +1,54 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import MovieCard from '../../components/MovieCard';
-import MovieDetails from '../../components/MovieDetails';
-import FavoritesActions from '../../components/FavoritesActions';
+import MovieCard from '../../components/MovieCard/MovieCard';
+import MovieDetails from '../../components/MovieDetails/MovieDetails';
+import FavoritesActions from '../../components/FavoritesActions/FavoritesActions';
 import { favoritesService } from '../../services/api';
 import './Favoritos.css';
+
+const modalStyles = {
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  zIndex: 1000,
+};
+
+const modalContentStyles = {
+  backgroundColor: '#1e293b',
+  padding: '2rem',
+  borderRadius: '12px',
+  maxWidth: '450px',
+  width: '90%',
+  boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)'
+};
+
+const buttonStyles = {
+  padding: '0.75rem 1.5rem',
+  borderRadius: '8px',
+  border: 'none',
+  fontWeight: 600,
+  cursor: 'pointer',
+  margin: '0.5rem',
+  transition: 'all 0.2s ease',
+};
+
+const confirmButtonStyles = {
+  ...buttonStyles,
+  backgroundColor: '#ef4444',
+  color: 'white',
+};
+
+const cancelButtonStyles = {
+  ...buttonStyles,
+  backgroundColor: '#334155',
+  color: '#e2e8f0',
+};
 
 const Favoritos = () => {
   const [favorites, setFavorites] = useState([]);
@@ -16,6 +60,8 @@ const Favoritos = () => {
   const [remoteError, setRemoteError] = useState('');
   const [listError, setListError] = useState('');
   const [selectedMovie, setSelectedMovie] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [listToDelete, setListToDelete] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
 
   const currentList = favoriteLists.find((list) => list.id === selectedListId);
@@ -55,7 +101,7 @@ const Favoritos = () => {
     };
 
     initializeFavorites();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   const loadFavoriteLists = async (preferredListId = null) => {
@@ -184,33 +230,86 @@ const Favoritos = () => {
     }
   };
 
-  const handleDeleteList = async (listId) => {
-    if (!window.confirm('Tem certeza que deseja excluir esta lista?')) {
+  const handleDeleteClick = (listId) => {
+    console.log('Solicitando confirmação para excluir lista:', listId);
+    setListToDelete(listId);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteList = async () => {
+    const listId = listToDelete;
+    console.log('Iniciando exclusão da lista:', listId);
+    setShowDeleteModal(false);
+    
+    if (!listId) {
+      console.error('ID da lista não fornecido');
       return;
     }
-
+    
+    console.log('Usuário confirmou a exclusão. Prosseguindo...');
+    
     try {
-      await favoritesService.deleteFavoriteList(listId);
-      showMessage('Lista excluída com sucesso!', 'success');
-
-      const remainingLists = favoriteLists.filter(list => list.id !== listId);
-      setFavoriteLists(remainingLists);
-
+      // 1. Primeiro faz a chamada para a API
+      console.log('Chamando API para deletar lista:', listId);
+      const response = await favoritesService.deleteFavoriteList(listId);
+      console.log('Resposta da API ao deletar:', response);
+      
+      // 2. Atualiza o estado local após a exclusão bem-sucedida
+      const updatedLists = favoriteLists.filter(list => list.id !== listId);
+      setFavoriteLists(updatedLists);
+      
+      // 3. Atualiza a lista selecionada se necessário
       if (selectedListId === listId) {
-        const nextSelected = remainingLists[0]?.id || null;
+        const nextSelected = updatedLists[0]?.id || null;
         setSelectedListId(nextSelected);
-
+        
         if (nextSelected) {
-          await handleSelectList(nextSelected);
+          // Carrega a próxima lista
+          const nextList = updatedLists.find(list => list.id === nextSelected);
+          if (nextList) {
+            setFavorites(nextList.movies || []);
+            localStorage.setItem('movieFavorites', JSON.stringify(nextList.movies || []));
+            localStorage.setItem('lastFavoriteListId', nextSelected);
+          }
         } else {
+          // Se não houver mais listas, limpa tudo
           setFavorites([]);
           localStorage.removeItem('lastFavoriteListId');
           localStorage.removeItem('movieFavorites');
         }
       }
+      
+      showMessage('Lista excluída com sucesso!', 'success');
+      console.log('Lista excluída com sucesso');
+      
     } catch (error) {
-      console.error('Erro ao excluir lista:', error);
-      showMessage('Erro ao excluir lista. Tente novamente.', 'error');
+      console.error('Erro ao excluir lista:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        url: error.config?.url
+      });
+      
+      // Em caso de erro, tenta recarregar a lista atual
+      if (selectedListId === listId) {
+        try {
+          const list = await favoritesService.getFavoriteList(selectedListId);
+          setFavorites(list?.movies || []);
+        } catch (e) {
+          console.error('Erro ao recarregar lista após falha na exclusão:', e);
+          setFavorites([]);
+        }
+      }
+      
+      // Tenta recarregar todas as listas
+      try {
+        const updatedLists = await favoritesService.getAllLists();
+        setFavoriteLists(updatedLists);
+      } catch (e) {
+        console.error('Erro ao carregar listas após falha na exclusão:', e);
+      }
+      
+      showMessage('Erro ao excluir a lista. Tente novamente.', 'error');
     }
   };
 
@@ -290,7 +389,8 @@ const Favoritos = () => {
                       className="delete-list-btn"
                       onClick={(event) => {
                         event.stopPropagation();
-                        handleDeleteList(list.id);
+                        event.preventDefault();
+                        handleDeleteClick(list.id);
                       }}
                     >
                       Excluir
@@ -304,7 +404,6 @@ const Favoritos = () => {
           <section className="favorite-main">
             <div className="current-list-header">
               <div>
-                <span className="section-label">Lista selecionada</span>
                 <h2>{currentList ? currentList.name : 'Favoritos em criação'}</h2>
               </div>
 
@@ -368,6 +467,38 @@ const Favoritos = () => {
           onToggleFavorite={handleToggleFavorite}
           isFavorite={true}
         />
+      )}
+      
+      {/* Modal de Confirmação de Exclusão */}
+      {showDeleteModal && (
+        <div style={modalStyles}>
+          <div style={modalContentStyles}>
+            <h3 style={{ marginTop: 0, color: '#e2e8f0' }}>Confirmar Exclusão</h3>
+            <p style={{ color: '#e2e8f0', marginBottom: '1.5rem' }}>
+              Tem certeza que deseja excluir esta lista? Esta ação não pode ser desfeita.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
+              <button 
+                style={cancelButtonStyles}
+                onClick={() => {
+                  console.log('Exclusão cancelada pelo usuário');
+                  setShowDeleteModal(false);
+                }}
+              >
+                Cancelar
+              </button>
+              <button 
+                style={confirmButtonStyles}
+                onClick={() => {
+                  console.log('Usuário confirmou a exclusão');
+                  handleDeleteList();
+                }}
+              >
+                Sim, Excluir
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

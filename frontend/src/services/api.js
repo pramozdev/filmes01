@@ -79,11 +79,19 @@ export const favoritesService = {
 
   // Remove uma lista de favoritos
   deleteFavoriteList: async (listId) => {
+    console.log(`Enviando requisição DELETE para /${listId}/`);
     try {
       const response = await api.delete(`/${listId}/`);
+      console.log('Resposta da API (delete):', response);
       return response.data;
     } catch (error) {
-      console.error('Erro ao excluir lista:', error);
+      console.error('Erro ao excluir lista:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        headers: error.response?.headers,
+        url: error.config?.url
+      });
       throw error;
     }
   },

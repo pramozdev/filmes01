@@ -49,21 +49,58 @@ export const tmdbService = {
   // Busca dados detalhados de um filme específico
   getMovieDetails: async (movieId) => {
     try {
-      const response = await tmdbApi.get(`/movie/${movieId}`);
-      return response.data;
+      // Busca todos os detalhes em paralelo para melhor performance
+      const [details, credits, videos, similar, reviews, watchProviders] = await Promise.all([
+        tmdbApi.get(`/movie/${movieId}`, {
+          params: { append_to_response: 'release_dates,keywords' }
+        }),
+        tmdbApi.get(`/movie/${movieId}/credits`),
+        tmdbApi.get(`/movie/${movieId}/videos`, {
+          params: { language: 'pt-BR,en-US' }
+        }),
+        tmdbApi.get(`/movie/${movieId}/similar`, {
+          params: { language: 'pt-BR', page: 1 }
+        }),
+        tmdbApi.get(`/movie/${movieId}/reviews`, {
+          params: { language: 'pt-BR,en-US', page: 1 }
+        }),
+        tmdbApi.get(`/movie/${movieId}/watch/providers`)
+      ]);
+
+      return {
+        ...details.data,
+        credits: credits.data,
+        videos: videos.data,
+        similar: similar.data,
+        reviews: reviews.data,
+        watchProviders: watchProviders.data.results?.BR || {}
+      };
     } catch (error) {
       console.error('Erro ao buscar detalhes do filme:', error);
       throw error;
     }
   },
 
-  // Busca trailers associados a um filme
+  // Método mantido para compatibilidade
   getMovieTrailers: async (movieId) => {
     try {
       const response = await tmdbApi.get(`/movie/${movieId}/videos`);
       return response.data;
     } catch (error) {
-      console.error('Erro ao buscar trailers:', error);
+      console.error('Erro ao buscar trailers do filme:', error);
+      return { results: [] };
+    }
+  },
+
+  // Busca informações adicionais sobre pessoas (atores, diretores, etc)
+  getPersonDetails: async (personId) => {
+    try {
+      const response = await tmdbApi.get(`/person/${personId}`, {
+        params: { append_to_response: 'movie_credits' }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar detalhes da pessoa:', error);
       throw error;
     }
   },

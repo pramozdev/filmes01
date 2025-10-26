@@ -1,21 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { favoritesService } from '../services/api';
-import { tmdbService } from '../services/tmdb';
-import MovieCard from '../components/MovieCard';
+import MovieCard from '../components/MovieCard/MovieCard';
 import './SharedList.css';
 
+
+/**
+ * Componente para exibir uma lista de filmes compartilhada
+ * @component
+ * @example
+ * return <SharedList />
+ */
 const SharedList = () => {
   const { listId } = useParams();
   const [list, setList] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    loadSharedList();
-  }, [listId]);
-
-  const loadSharedList = async () => {
+  const loadSharedList = useCallback(async () => {
     try {
       setLoading(true);
       const data = await favoritesService.getSharedList(listId);
@@ -26,8 +28,16 @@ const SharedList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [listId]);
 
+  useEffect(() => {
+    loadSharedList();
+  }, [loadSharedList]);
+
+  /**
+   * Manipulador para adicionar/remover filmes dos favoritos
+   * Pode ser implementado para adicionar filmes aos favoritos locais
+   */
   const handleToggleFavorite = () => {
     // Esta funcionalidade pode ser implementada para adicionar filmes aos favoritos locais
     console.log('Funcionalidade de adicionar aos favoritos pode ser implementada aqui');

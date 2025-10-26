@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { tmdbService } from '../services/tmdb';
-import SearchBar from '../components/SearchBar';
-import MovieCard from '../components/MovieCard';
-import MovieDetails from '../components/MovieDetails';
-import FavoritesActions from '../components/FavoritesActions';
+import SearchBar from '../components/SearchBar/SearchBar';
+import MovieCard from '../components/MovieCard/MovieCard';
+import MovieDetails from '../components/MovieDetails/MovieDetails';
+import FavoritesActions from '../components/FavoritesActions/FavoritesActions';
 import './Home.css';
 
 import { Link } from 'react-router-dom';
@@ -77,7 +77,7 @@ const Home = () => {
       if (filteredMovies.length === 0) {
         showMessage('Nenhum filme encontrado para sua busca', 'info');
       }
-    } catch (error) {
+    } catch {
       showMessage('Erro ao buscar filmes', 'error');
     } finally {
       setLoading(false);

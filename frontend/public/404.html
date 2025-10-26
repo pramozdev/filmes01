@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Lista de Filmes</title>
+    <script>
+      // Redireciona para a raiz do site
+      sessionStorage.redirect = location.href.split('/').slice(5).join('/');
+      location.href = '/listafilmes/frontend/dist/';
+    </script>
+  </head>
+  <body>
+    <p>Redirecionando...</p>
+  </body>
+</html>

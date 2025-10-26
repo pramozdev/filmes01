@@ -1,0 +1,81 @@
+:root {
+  /* Cores Principais - Tema Vibrante */
+  --primary: #ff00ff;
+  --primary-light: #ff66ff;
+  --primary-dark: #cc00cc;
+  --primary-rgb: 255, 0, 255;
+  
+  /* Cores de Fundo */
+  --bg-primary: #0f0f1a;
+  --bg-secondary: #1a1a2e;
+  --bg-tertiary: #2d2d44;
+  --bg-card: rgba(45, 45, 68, 0.8);
+  
+  /* Cores de Texto */
+  --text-primary: #ffffff;
+  --text-secondary: #d1d1e9;
+  --text-tertiary: #a0a0c0;
+  
+  /* Cores de Destaque */
+  --accent: #00ffcc;
+  --accent-hover: #66ffdd;
+  --accent-rgb: 0, 255, 204;
+  --success: #00ff88;
+  --warning: #ffcc00;
+  --error: #ff3366;
+  --info: #00ccff;
+  
+  /* Gradientes */
+  --gradient-primary: linear-gradient(135deg, var(--primary) 0%, #9900cc 100%);
+  --gradient-accent: linear-gradient(135deg, var(--accent) 0%, #00ccff 100%);
+  --gradient-bg: radial-gradient(circle at 10% 20%, #1a1a2e 0%, #0f0f1a 100%);
+  --gradient-card: linear-gradient(145deg, #2d2d44 0%, #1a1a2e 100%);
+  --gradient-glow: linear-gradient(90deg, #ff00ff 0%, #00ccff 50%, #00ffcc 100%);
+  
+  /* Efeitos */
+  --glow: 0 0 15px rgba(var(--primary-rgb), 0.7);
+  --glow-hover: 0 0 25px rgba(var(--primary-rgb), 0.9);
+  --glow-text: 0 0 10px rgba(var(--primary-rgb), 0.8);
+  --accent-glow: 0 0 15px rgba(var(--accent-rgb), 0.7);
+  --accent-glow-hover: 0 0 25px rgba(var(--accent-rgb), 0.9);
+  
+  /* Transições */
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Layout */
+  --header-height: 80px;
+  --footer-height: 80px;
+  --max-width: 1400px;
+  --border-radius: 16px;
+  --border-radius-sm: 8px;
+  --border-radius-lg: 24px;
+  --border-radius-full: 9999px;
+  --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.3), 0 6px 6px rgba(0, 0, 0, 0.2);
+  --card-hover-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 10px 10px rgba(0, 0, 0, 0.3);
+  
+  /* Espaçamentos */
+  --spacing-xxs: 4px;
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+  
+  /* Sombras */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.25);
+  
+  /* Z-index */
+  --z-header: 1000;
+  --z-modal: 1100;
+  --z-toast: 1200;
+  --z-tooltip: 1300;
+  
+  /* Animações */
+  --animation-duration: 0.3s;
+  --animation-timing: cubic-bezier(0.4, 0, 0.2, 1);
+}

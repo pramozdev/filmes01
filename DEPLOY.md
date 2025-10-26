@@ -1,6 +1,23 @@
-# Deploy na Render
+# Guia de Deploy
 
-Este guia explica como fazer o deploy da aplicação Movie Favorites na Render, incluindo o backend (Django), frontend (React) e banco de dados (PostgreSQL).
+Este guia explica como fazer o deploy da aplicação Movie Favorites em diferentes plataformas, incluindo configurações para backend (Django), frontend (React) e banco de dados (PostgreSQL).
+
+## Plataformas de Hospedagem Recomendadas
+
+- **Render** (Fácil configuração, plano gratuito disponível) - [https://render.com/](https://render.com/)
+- **Railway** (Ótimo para começar) - [https://railway.app/](https://railway.app/)
+- **Vercel** (Frontend) + **Railway** (Backend) - Combinação poderosa
+- **Heroku** (Alternativa tradicional) - [https://www.heroku.com/](https://www.heroku.com/)
+
+## Sumário
+
+1. [Deploy no Render](#1-deploy-no-render)
+2. [Deploy no Railway](#2-deploy-no-railway)
+3. [Configuração de Domínio Personalizado](#3-configuração-de-domínio-personalizado)
+4. [Variáveis de Ambiente](#4-variáveis-de-ambiente)
+5. [Solução de Problemas](#5-solução-de-problemas)
+
+## 1. Deploy no Render
 
 ## Pré-requisitos
 
@@ -136,6 +153,49 @@ Para atualizar a aplicação:
 3. O Render fará o deploy automático (se configurado)
 4. Se necessário, execute migrações de banco de dados
 
+## 2. Deploy no Railway
+
+O Railway oferece uma maneira simples de fazer deploy tanto do frontend quanto do backend, com banco de dados PostgreSQL incluso.
+
+### Pré-requisitos
+- Conta no [Railway](https://railway.app/)
+- Git instalado localmente
+- Conta no GitHub, GitLab ou Bitbucket
+
+### Passo a Passo
+
+1. **Importe seu repositório**
+   - Acesse o [Painel do Railway](https://railway.app/dashboard)
+   - Clique em "New Project" e selecione "Deploy from GitHub repo"
+   - Escolha seu repositório e a branch desejada
+
+2. **Configure o Backend**
+   - Adicione as seguintes variáveis de ambiente:
+     ```
+     DJANGO_SETTINGS_MODULE=movie_project.settings.production
+     DJANGO_SECRET_KEY=sua_chave_secreta_aqui
+     CORS_ALLOWED_ORIGINS=https://seu-frontend.railway.app
+     ```
+   - Configure o comando de build: `cd backend && pip install -r requirements.txt`
+   - Configure o comando de start: `gunicorn movie_project.wsgi:application`
+   - Adicione um banco de dados PostgreSQL no painel do Railway
+   - Conecte o banco de dados ao seu serviço Django
+
+3. **Configure o Frontend**
+   - Crie um novo serviço para o frontend
+   - Configure o diretório raiz: `frontend`
+   - Configure o comando de build: `npm install && npm run build`
+   - Configure o diretório de saída: `dist`
+   - Adicione as variáveis de ambiente:
+     ```
+     VITE_API_BASE_URL=https://seu-backend.railway.app
+     VITE_TMDB_API_KEY=sua_chave_da_tmdb
+     ```
+
+4. **Implante**
+   - O Railway fará o deploy automático a cada push
+   - Acesse a URL fornecida para testar a aplicação
+
 ## Suporte
 
-Em caso de problemas, consulte a [documentação da Render](https://render.com/docs) ou entre em contato com o suporte.
+Em caso de problemas, consulte a [documentação da Render](https://render.com/docs), [documentação do Railway](https://docs.railway.app/) ou entre em contato com o suporte da respectiva plataforma.
