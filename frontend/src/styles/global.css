@@ -1,3 +1,5 @@
+/* Import rules must be at the top of the file */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 @import './variables.css';
 
 /* Reset e Estilos Base */
