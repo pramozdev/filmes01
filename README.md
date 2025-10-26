@@ -44,8 +44,8 @@ Aplicação full stack para pesquisar filmes na TMDb, assistir trailers do YouTu
 
 <div align="center">
   <img src="./screenshots/home.png" alt="Página Inicial" width="45%">
-  <img src="./screenshots/movie-detail.png" alt="Detalhes do Filme" width="45%">
-  <img src="./screenshots/lists.png" alt="Listas de Favoritos" width="45%">
+  <img src="./screenshots/detalhes.png" alt="Detalhes do Filme" width="45%">
+  <img src="./screenshots/favoritos.png" alt="Listas de Favoritos" width="45%">
   <img src="./screenshots/shared-list.png" alt="Lista Compartilhada" width="45%">
 </div>
 
