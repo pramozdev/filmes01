@@ -8,10 +8,12 @@ import './styles/global.css';
 // Componentes
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
+import BackToTop from './components/BackToTop/BackToTop';
 
 // Páginas
 import Home from './pages/Home';
 import Favoritos from './pages/Favoritos/Favoritos';
+import MovieDetail from './pages/MovieDetail/MovieDetail';
 import SharedList from './pages/SharedList';
 import NotFound from './pages/NotFound/NotFound';
 
@@ -43,11 +45,13 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/favoritos" element={<Favoritos />} />
+          <Route path="/movie/:id" element={<MovieDetail />} />
           <Route path="/shared/:listId" element={<SharedList />} />
           <Route path="/listafilmes/*" element={<Home />} />
           {/* Rota 404 - Página não encontrada */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <BackToTop />
       </main>
       <Footer />
     </div>

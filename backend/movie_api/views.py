@@ -19,8 +19,43 @@ class FavoriteListCreateView(generics.CreateAPIView):
 
 class FavoriteListListView(generics.ListAPIView):
     """Lista todas as listas de favoritos cadastradas, da mais recente para a mais antiga."""
-    queryset = FavoriteList.objects.all().order_by('-created_at')
     serializer_class = FavoriteListSerializer
+    
+    def get_queryset(self):
+        try:
+            logger.info("Listando todas as listas de favoritos")
+            queryset = FavoriteList.objects.all().order_by('-created_at')
+            logger.info(f"Encontradas {queryset.count()} listas")
+            return queryset
+        except Exception as e:
+            logger.error(f"Erro ao buscar listas de favoritos: {str(e)}", exc_info=True)
+            # Retorna um queryset vazio em caso de erro
+            return FavoriteList.objects.none()
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.get_queryset()
+            serializer = self.get_serializer(queryset, many=True)
+            
+            # Adiciona metadados úteis na resposta
+            response_data = {
+                'count': len(serializer.data),
+                'results': serializer.data,
+                'status': 'success'
+            }
+            
+            return Response(response_data)
+            
+        except Exception as e:
+            logger.error(f"Erro ao processar requisição de listagem: {str(e)}", exc_info=True)
+            return Response(
+                {
+                    'status': 'error',
+                    'message': 'Ocorreu um erro ao buscar as listas de favoritos',
+                    'details': str(e)
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class FavoriteListDetailView(generics.RetrieveDestroyAPIView):
@@ -42,34 +77,106 @@ class FavoriteListDetailView(generics.RetrieveDestroyAPIView):
 @api_view(['POST'])
 def save_favorites(request):
     """Recebe os dados do frontend e persiste uma nova lista de favoritos."""
-    serializer = FavoriteListSerializer(data=request.data)
-    if serializer.is_valid():
-        try:
-            favorite_list = serializer.save()
-            favorite_data = FavoriteListSerializer(favorite_list).data
-
-            response_payload = {
-                **favorite_data,
-                'message': 'Lista salva com sucesso!',
-                'share_url': f'/shared/{favorite_list.id}'
-            }
-
-            logger.info("Lista de favoritos salva", extra={"favorite_list_id": str(favorite_list.id)})
-            return Response(response_payload, status=status.HTTP_201_CREATED)
-        except Exception:
-            logger.exception("Erro interno ao salvar lista de favoritos")
+    logger.info("Recebendo requisição para salvar lista", extra={"data": request.data})
+    
+    try:
+        # Verifica se os dados são válidos
+        if not request.data:
+            logger.error("Nenhum dado recebido na requisição")
             return Response(
-                {'error': 'Erro interno ao salvar'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {'status': 'error', 'message': 'Nenhum dado recebido'},
+                status=status.HTTP_400_BAD_REQUEST
             )
-    else:
-        logger.warning(
-            "Erro de validação ao salvar lista de favoritos",
-            extra={"errors": serializer.errors}
-        )
+        
+        # Adiciona valores padrão se não fornecidos
+        data = request.data.copy()
+        if not isinstance(data, dict):
+            try:
+                data = dict(data)
+            except (TypeError, ValueError) as e:
+                logger.error(f"Erro ao converter dados: {str(e)}", exc_info=True)
+                return Response(
+                    {'status': 'error', 'message': 'Formato de dados inválido'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        
+        # Adiciona nome padrão se não fornecido
+        if 'name' not in data or not data['name']:
+            data['name'] = 'Minha Lista de Filmes'
+        
+        # Garante que movies é uma lista
+        if 'movies' not in data or not isinstance(data.get('movies'), list):
+            data['movies'] = []
+        
+        # Filtra filmes inválidos
+        data['movies'] = [
+            movie for movie in data['movies'] 
+            if isinstance(movie, dict) and 'id' in movie and 'title' in movie
+        ]
+        
+        logger.info("Dados processados para salvar", extra={
+            "list_name": data.get('name'),
+            "movie_count": len(data.get('movies', [])),
+            "first_movie": data.get('movies', [{}])[0] if data.get('movies') else None
+        })
+        
+        # Valida os dados com o serializer
+        serializer = FavoriteListSerializer(data=data)
+        
+        if serializer.is_valid():
+            try:
+                # Salva a lista de favoritos
+                favorite_list = serializer.save()
+                favorite_data = FavoriteListSerializer(favorite_list).data
+
+                # Prepara a resposta de sucesso
+                response_payload = {
+                    'status': 'success',
+                    'data': favorite_data,
+                    'message': 'Lista salva com sucesso!',
+                    'share_url': f'/shared/{favorite_list.id}'
+                }
+
+                logger.info(
+                    "Lista de favoritos salva com sucesso",
+                    extra={
+                        "favorite_list_id": str(favorite_list.id),
+                        "list_name": favorite_list.name,
+                        "movie_count": len(favorite_list.movies) if favorite_list.movies else 0
+                    }
+                )
+                
+                return Response(response_payload, status=status.HTTP_201_CREATED)
+                
+            except Exception as e:
+                error_msg = f"Erro ao salvar lista de favoritos: {str(e)}"
+                logger.error(error_msg, exc_info=True)
+                return Response(
+                    {
+                        'status': 'error',
+                        'message': 'Erro ao salvar a lista de favoritos',
+                        'error': str(e)
+                    },
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+        else:
+            error_msg = f"Dados inválidos no serializer: {serializer.errors}"
+            logger.error(error_msg, extra={"errors": serializer.errors})
+            return Response(
+                {
+                    'status': 'error',
+                    'message': 'Dados inválidos',
+                    'errors': serializer.errors
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    except Exception as e:
+        error_msg = f"Erro inesperado ao processar requisição: {str(e)}"
+        logger.error(error_msg, exc_info=True)
         return Response(
-            {'error': 'Dados inválidos', 'details': serializer.errors},
-            status=status.HTTP_400_BAD_REQUEST
+            {'error': 'Erro inesperado ao processar a requisição', 'details': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 

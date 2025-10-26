@@ -1,0 +1,8 @@
+# Comando para produção (usado pelo Render)
+web: gunicorn movie_project.wsgi:application --log-file -
+
+# Comando release para migrações e coleta de estáticos (executado automaticamente no deploy)
+release: python manage.py migrate --no-input && python manage.py collectstatic --no-input
+
+# Comando para desenvolvimento local (não usado em produção)
+# dev: python manage.py runserver 0.0.0.0:5000
