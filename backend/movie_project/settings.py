@@ -37,15 +37,28 @@ DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
-# Configurações CORS
-CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', 'True').lower() == 'true'
+# Configurações CORS e CSRF
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
-    origin.strip() for origin in os.getenv(
-        'CORS_ALLOWED_ORIGINS',
-        'http://localhost:5173,http://127.0.0.1:5173'
-    ).split(',') if origin.strip()
+    "http://localhost:5173",  # Frontend local
+    "http://127.0.0.1:5173",  # Alternativa para o frontend local
+    "https://seu-frontend.vercel.app"  # Seu domínio de produção
 ]
+
+# Configurações CSRF
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://seu-frontend.vercel.app"
+]
+
+# Configurações de Sessão e Autenticação
+SESSION_COOKIE_SECURE = not DEBUG  # Apenas HTTPS em produção
+CSRF_COOKIE_SECURE = not DEBUG     # Apenas HTTPS em produção
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False  # Necessário para ser acessível via JavaScript
+SESSION_COOKIE_SAMESITE = 'Lax'  # Pode ser 'Lax' ou 'None' se estiver usando HTTPS
 
 
 # Application definition
