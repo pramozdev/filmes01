@@ -4,7 +4,7 @@ import { FaStar, FaTimes } from 'react-icons/fa';
 import { tmdbService } from '../../services/tmdb';
 import './MovieCard.css';
 
-const MovieCard = ({ movie, isFavorite = false, onToggleFavorite, onShowDetails }) => {
+const MovieCard = ({ movie, isFavorite = false, onToggleFavorite, onShowDetails, isExpanded = false }) => {
   const handleToggleFavorite = (e) => {
     e.stopPropagation();
     onToggleFavorite(movie);
@@ -16,8 +16,10 @@ const MovieCard = ({ movie, isFavorite = false, onToggleFavorite, onShowDetails 
     }
   };
 
+  const cardClass = `movie-card ${isExpanded ? 'expanded' : ''}`;
+
   return (
-    <div className="movie-card">
+    <div className={cardClass}>
       <div className="movie-poster" onClick={handleShowDetails}>
         <img
           src={movie.poster_path ? tmdbService.getImageUrl(movie.poster_path) : 'https://via.placeholder.com/300x450?text=Poster+Not+Available'}
@@ -27,17 +29,22 @@ const MovieCard = ({ movie, isFavorite = false, onToggleFavorite, onShowDetails 
             e.target.src = 'https://via.placeholder.com/300x450?text=Poster+Not+Available';
           }}
         />
-        <button 
-          className="close-button"
-          onClick={(e) => {
-            e.stopPropagation();
-            // Aqui você pode adicionar a lógica para fechar/remover o card se necessário
-          }}
-          aria-label="Fechar"
-          title="Fechar"
-        >
-          <FaTimes className="close-icon" />
-        </button>
+        {isExpanded && (
+          <button 
+            className="close-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              // Aqui você pode adicionar a lógica para fechar/remover o card se necessário
+              if (onShowDetails) {
+                onShowDetails(null);
+              }
+            }}
+            aria-label="Fechar"
+            title="Fechar"
+          >
+            <FaTimes className="close-icon" />
+          </button>
+        )}
       </div>
       
       <div className="movie-content">
@@ -85,7 +92,8 @@ MovieCard.propTypes = {
   }).isRequired,
   isFavorite: PropTypes.bool,
   onToggleFavorite: PropTypes.func.isRequired,
-  onShowDetails: PropTypes.func
+  onShowDetails: PropTypes.func,
+  isExpanded: PropTypes.bool
 };
 
 export default MovieCard;

@@ -39,6 +39,18 @@
   z-index: 10;
 }
 
+/* Estilo para o card expandido */
+.movie-card.expanded {
+  position: relative;
+  z-index: 100;
+}
+
+.movie-card.expanded .close-button {
+  display: flex;
+  opacity: 1;
+  visibility: visible;
+}
+
 .movie-card:hover::before {
   opacity: 1;
   box-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
@@ -90,7 +102,6 @@
 }
 
 /* Botão de fechar */
-/* Botão de Fechar */
 .close-button {
   position: absolute;
   top: 15px;
@@ -506,4 +517,3 @@
   .movie-info {
     padding: 0.75rem;
   }
-}

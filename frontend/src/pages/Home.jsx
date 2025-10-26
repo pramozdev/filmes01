@@ -173,15 +173,19 @@ const Home = () => {
         />
 
         <div className="movies-grid">
-          {movies.map((movie) => (
-            <MovieCard
-              key={movie.id}
-              movie={movie}
-              isFavorite={favorites.some(fav => fav.id === movie.id)}
-              onToggleFavorite={handleToggleFavorite}
-              onShowDetails={handleShowDetails}
-            />
-          ))}
+          {movies.map((movie) => {
+            const isExpanded = showDetails && selectedMovie && selectedMovie.id === movie.id;
+            return (
+              <MovieCard
+                key={movie.id}
+                movie={movie}
+                isFavorite={favorites.some(fav => fav.id === movie.id)}
+                onToggleFavorite={handleToggleFavorite}
+                onShowDetails={handleShowDetails}
+                isExpanded={isExpanded}
+              />
+            );
+          })}
         </div>
 
         {movies.length === 0 && !loading && (
