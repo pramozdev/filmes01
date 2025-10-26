@@ -29,6 +29,7 @@
 .search-input {
   flex: 1;
   padding: 0.9rem 1.5rem;
+  padding-right: 2.5rem; /* Espaço para o botão de limpar */
   border: none;
   background: transparent;
   color: #fff;
@@ -39,6 +40,32 @@
 
 .search-input::placeholder {
   color: rgba(255, 255, 255, 0.6);
+}
+
+.search-input-group .clear-button {
+  position: absolute;
+  right: 50px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  z-index: 10;
+}
+
+.search-input-group .clear-button:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .search-button, .filter-toggle {
@@ -177,8 +204,15 @@
 
 @media (max-width: 480px) {
   .search-input {
-    padding: 0.8rem 1.2rem;
+    padding: 0.8rem 2.5rem 0.8rem 1.2rem;
     font-size: 0.95rem;
+  }
+  
+  .clear-button {
+    right: 45px;
+    padding: 0.4rem;
+    width: 24px;
+    height: 24px;
   }
   
   .search-button, .filter-toggle {

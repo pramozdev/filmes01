@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:9000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -9,27 +10,84 @@ const api = axios.create({
   },
 });
 
+// Configura o interceptor para logar erros de requisição
+api.interceptors.response.use(
+  response => {
+    console.log('Resposta recebida:', {
+      status: response.status,
+      data: response.data,
+      url: response.config.url
+    });
+    return response;
+  },
+  error => {
+    console.error('Erro na requisição:', {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data,
+      url: error.config?.url,
+      method: error.config?.method
+    });
+    return Promise.reject(error);
+  }
+);
+
 export const favoritesService = {
   // Envia os dados para criação/atualização de uma lista de favoritos
   saveFavorites: async (name, movies) => {
     try {
-      console.log('Enviando dados para salvar:', { name, movies: movies.length });
-      
+      // Garante que os filmes tenham o formato correto
+      const formattedMovies = (movies || []).map(movie => ({
+        id: movie.id,
+        title: movie.title || 'Título não disponível',
+        poster_path: movie.poster_path || null,
+        overview: movie.overview || 'Sinopse não disponível',
+        vote_average: movie.vote_average || 0,
+        release_date: movie.release_date || ''
+      }));
+
+      console.log('Enviando dados para salvar:', {
+        name,
+        movie_count: formattedMovies.length,
+        first_movie: formattedMovies[0] ? {
+          id: formattedMovies[0].id,
+          title: formattedMovies[0].title,
+          overview: formattedMovies[0].overview?.substring(0, 50) + '...'
+        } : null
+      });
+
       const response = await api.post('/save/', {
         name: name || 'Minha Lista de Favoritos',
-        movies: movies || [],
+        movies: formattedMovies,
       });
-      
+
       console.log('Resposta do servidor:', response.data);
+      
+      if (response.data && response.data.status === 'error') {
+        throw new Error(response.data.message || 'Erro ao salvar a lista');
+      }
+      
       return response.data;
     } catch (error) {
-      console.error('Erro ao salvar favoritos:', error);
-      console.error('Detalhes do erro:', {
+      const errorDetails = {
+        message: error.message,
+        response: error.response?.data,
         status: error.response?.status,
-        data: error.response?.data,
-        message: error.message
-      });
-      throw error;
+        config: {
+          url: error.config?.url,
+          method: error.config?.method,
+          data: error.config?.data
+        }
+      };
+      
+      console.error('Erro detalhado ao salvar favoritos:', errorDetails);
+      
+      // Extrai a mensagem de erro da resposta do servidor, se disponível
+      const errorMessage = error.response?.data?.message || 
+                         error.response?.data?.error || 
+                         'Erro ao salvar a lista de favoritos';
+      
+      throw new Error(errorMessage);
     }
   },
 
@@ -47,11 +105,40 @@ export const favoritesService = {
   // Retorna todas as listas salvas no backend
   getAllLists: async () => {
     try {
+      console.log('Buscando listas de favoritos...');
       const response = await api.get('/lists/');
-      return response.data;
+      console.log('Resposta da API (getAllLists):', response.data);
+      
+      // Verifica se a resposta tem a estrutura esperada
+      if (response.data && response.data.status === 'success' && Array.isArray(response.data.results)) {
+        return response.data.results;
+      } else if (Array.isArray(response.data)) {
+        return response.data;
+      } else if (response.data && response.data.results && Array.isArray(response.data.results)) {
+        return response.data.results;
+      } else {
+        console.warn('Formato de resposta inesperado:', response.data);
+        return [];
+      }
     } catch (error) {
-      console.error('Erro ao buscar listas de favoritos:', error);
-      throw error;
+      console.error('Erro ao buscar listas de favoritos:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
+      // Tenta carregar do localStorage em caso de erro
+      try {
+        const localData = localStorage.getItem('favoriteLists');
+        if (localData) {
+          const parsed = JSON.parse(localData);
+          return Array.isArray(parsed) ? parsed : [];
+        }
+      } catch (e) {
+        console.error('Erro ao carregar dados do localStorage:', e);
+      }
+      
+      return [];
     }
   },
 

@@ -1520,4 +1520,127 @@
   .trailer-list {
     grid-template-columns: 1fr;
   }
+  
+  .trailer-cast-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .cast-sidebar {
+    margin-top: 2rem;
+  }
+}
+
+/* Estilos para a seção de trailer e elenco */
+.trailer-cast-container {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 2rem;
+  margin: 2rem 0;
+  align-items: flex-start;
+}
+
+.trailer-wrapper {
+  grid-column: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  background: #0a0c12;
+  padding: 1.5rem;
+}
+
+.trailer-wrapper h3 {
+  margin: 0 0 1rem 0;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.trailer-container {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  height: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #000;
+}
+
+.trailer-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Estilos para a barra lateral do elenco */
+.cast-sidebar {
+  background: rgba(15, 23, 42, 0.7);
+  border-radius: 8px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.cast-sidebar h3 {
+  color: #fff;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 1.25rem;
+}
+
+/* Estilos para a lista de elenco */
+.cast-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.cast-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.cast-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(5px);
+}
+
+.cast-image {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.cast-info h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.cast-info p {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+  .trailer-cast-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .cast-sidebar {
+    margin-top: 2rem;
+    max-height: none;
+  }
 }

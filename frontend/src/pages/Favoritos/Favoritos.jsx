@@ -105,33 +105,122 @@ const Favoritos = () => {
   }, []);
 
   const loadFavoriteLists = async (preferredListId = null) => {
+    setLoading(true);
+    setListError('');
+    
     try {
+      console.log('Carregando listas de favoritos...');
       const lists = await favoritesService.getAllLists();
-      setFavoriteLists(lists);
-
-      if (lists.length === 0) {
+      console.log('Listas carregadas:', lists);
+      
+      // Se não houver listas, limpa o estado
+      if (!lists || lists.length === 0) {
+        console.log('Nenhuma lista encontrada');
+        setFavoriteLists([]);
         setSelectedListId(null);
         setFavorites([]);
         localStorage.removeItem('lastFavoriteListId');
+        localStorage.removeItem('movieFavorites');
+        setListError('Você ainda não tem listas salvas. Crie uma nova lista para começar!');
         return;
       }
+      
+      // Filtra listas inválidas
+      const validLists = lists.filter(list => list && list.id);
+      
+      // Salva as listas válidas no estado e no localStorage
+      setFavoriteLists(validLists);
+      localStorage.setItem('favoriteLists', JSON.stringify(validLists));
 
+      // Tenta usar a lista preferida, senão usa a primeira da lista
       let nextSelectedId = preferredListId;
-      if (!nextSelectedId || !lists.some(list => list.id === nextSelectedId)) {
-        nextSelectedId = lists[0].id;
+      if (!nextSelectedId || !validLists.some(list => list.id === nextSelectedId)) {
+        nextSelectedId = validLists[0]?.id || null;
+        console.log(`Usando a primeira lista disponível: ${nextSelectedId}`);
       }
 
-      setSelectedListId(nextSelectedId);
-      localStorage.setItem('lastFavoriteListId', nextSelectedId);
+      // Atualiza o ID da lista selecionada
+      if (nextSelectedId) {
+        setSelectedListId(nextSelectedId);
+        localStorage.setItem('lastFavoriteListId', nextSelectedId);
+      }
 
-      const selectedList = lists.find(list => list.id === nextSelectedId);
-      if (selectedList?.movies) {
+      // Atualiza a lista de filmes ativa
+      const selectedList = validLists.find(list => list.id === nextSelectedId);
+      if (selectedList?.movies && Array.isArray(selectedList.movies)) {
+        console.log(`Atualizando filmes da lista ${nextSelectedId} com ${selectedList.movies.length} filmes`);
         setFavorites(selectedList.movies);
         localStorage.setItem('movieFavorites', JSON.stringify(selectedList.movies));
+      } else {
+        console.warn('Lista selecionada não contém filmes válidos:', selectedList);
+        setFavorites([]);
+        localStorage.removeItem('movieFavorites');
       }
+      
     } catch (error) {
-      console.error('Erro ao listar listas de favoritos:', error);
-      setListError('Não foi possível carregar suas listas salvas.');
+      console.error('Erro ao carregar listas de favoritos:', {
+        message: error.message,
+        error: error,
+        stack: error.stack
+      });
+      
+      // Tenta carregar do localStorage em caso de erro
+      try {
+        const localData = localStorage.getItem('favoriteLists');
+        if (localData) {
+          const parsed = JSON.parse(localData);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            console.log('Carregando listas do localStorage:', parsed);
+            setFavoriteLists(parsed);
+            
+            // Tenta restaurar a última lista visualizada
+            const lastListId = localStorage.getItem('lastFavoriteListId');
+            const lastFavorites = localStorage.getItem('movieFavorites');
+            
+            if (lastListId && parsed.some(list => list.id === lastListId)) {
+              // Se encontrou a última lista usada
+              console.log(`Restaurando lista anterior: ${lastListId}`);
+              setSelectedListId(lastListId);
+              
+              // Tenta carregar os filmes da lista
+              try {
+                if (lastFavorites) {
+                  const movies = JSON.parse(lastFavorites);
+                  if (Array.isArray(movies)) {
+                    setFavorites(movies);
+                    console.log(`Restaurados ${movies.length} filmes da lista ${lastListId}`);
+                  }
+                }
+              } catch (e) {
+                console.error('Erro ao carregar filmes do localStorage:', e);
+              }
+              
+              return;
+            } else if (parsed.length > 0) {
+              // Se não encontrou a última lista, usa a primeira disponível
+              const firstList = parsed[0];
+              console.log(`Usando a primeira lista disponível do cache: ${firstList.id}`);
+              setSelectedListId(firstList.id);
+              
+              if (firstList.movies && Array.isArray(firstList.movies)) {
+                setFavorites(firstList.movies);
+                localStorage.setItem('movieFavorites', JSON.stringify(firstList.movies));
+              }
+              
+              return;
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Erro ao carregar dados do localStorage:', e);
+      }
+      
+      // Se chegou aqui, não conseguiu carregar nenhuma lista
+      setListError('Não foi possível carregar as listas de favoritos. Verifique sua conexão e tente novamente.');
+      setFavoriteLists([]);
+      setFavorites([]);
+    } finally {
+      setLoading(false);
     }
   };
 

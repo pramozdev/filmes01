@@ -2,14 +2,25 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import './SearchBar.css';
 
-const SearchBar = ({ onSearch, loading = false, filters = {}, setFilters = () => {} }) => {
-  const [query, setQuery] = useState('');
+const SearchBar = ({ 
+  onSearch, 
+  onClear,
+  searchTerm = '',
+  onSearchTermChange,
+  loading = false, 
+  filters = {}, 
+  setFilters = () => {}
+}) => {
+  const [query, setQuery] = useState(searchTerm);
   const [showFilters, setShowFilters] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (query.trim()) {
-      onSearch(query.trim(), filters);
+    const searchQuery = query.trim();
+    if (searchQuery) {
+      onSearch(searchQuery, filters);
+    } else {
+      onClear?.();
     }
   };
 
@@ -34,11 +45,27 @@ const SearchBar = ({ onSearch, loading = false, filters = {}, setFilters = () =>
           <input
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              onSearchTermChange?.(e);
+            }}
             placeholder="Buscar filmes..."
             className="search-input"
             disabled={loading}
           />
+          {query && (
+            <button 
+              type="button"
+              className="clear-button"
+              onClick={() => {
+                setQuery('');
+                onClear?.();
+              }}
+              aria-label="Limpar busca"
+            >
+              ✕
+            </button>
+          )}
           <button 
             type="submit" 
             className="search-button"
@@ -112,6 +139,9 @@ const SearchBar = ({ onSearch, loading = false, filters = {}, setFilters = () =>
 
 SearchBar.propTypes = {
   onSearch: PropTypes.func.isRequired,
+  onClear: PropTypes.func,
+  searchTerm: PropTypes.string,
+  onSearchTermChange: PropTypes.func,
   loading: PropTypes.bool,
   filters: PropTypes.shape({
     year: PropTypes.string,

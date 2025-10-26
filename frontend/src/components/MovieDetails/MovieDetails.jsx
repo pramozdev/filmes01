@@ -308,16 +308,27 @@ const MovieDetails = ({ movie, onClose, onToggleFavorite, isFavorite, onMovieSel
                   </p>
                 )}
                 
-                {youtubeTrailer && (
-                  <div className="trailer-preview">
-                    <iframe
-                      width="100%"
-                      height="315"
-                      src={`https://www.youtube.com/embed/${youtubeTrailer.key}?autoplay=0`}
-                      title={`Trailer de ${title}`}
-                      frameBorder="0"
-                      allowFullScreen
-                    ></iframe>
+                {(youtubeTrailer || credits.cast?.length > 0) && (activeTab === 'trailers' || activeTab === 'cast') && (
+                  <div className="trailer-cast-container">
+                    {/* Seção do Trailer */}
+                    {youtubeTrailer && activeTab === 'trailers' && (
+                      <div className="trailer-wrapper">
+                        <h3>Trailer</h3>
+                        <Trailers 
+                          videos={videos} 
+                          movieTitle={title} 
+                          releaseDate={release_date} 
+                        />
+                      </div>
+                    )}
+
+                    {/* Seção do Elenco */}
+                    {credits.cast?.length > 0 && (
+                      <div className="cast-sidebar">
+                        <h3>Elenco Principal</h3>
+                        <CastList cast={credits.cast.slice(0, 6)} />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

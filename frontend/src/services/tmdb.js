@@ -92,6 +92,50 @@ export const tmdbService = {
     }
   },
 
+  // Busca o elenco do filme
+  getMovieCredits: async (movieId) => {
+    try {
+      const response = await tmdbApi.get(`/movie/${movieId}/credits`);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar elenco do filme:', error);
+      return { cast: [], crew: [] };
+    }
+  },
+
+  // Busca vídeos do filme
+  getMovieVideos: async (movieId) => {
+    try {
+      const response = await tmdbApi.get(`/movie/${movieId}/videos`);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar vídeos do filme:', error);
+      return { results: [] };
+    }
+  },
+
+  // Busca filmes similares
+  getSimilarMovies: async (movieId) => {
+    try {
+      const response = await tmdbApi.get(`/movie/${movieId}/similar`);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar filmes similares:', error);
+      return { results: [] };
+    }
+  },
+
+  // Busca avaliações do filme
+  getMovieReviews: async (movieId) => {
+    try {
+      const response = await tmdbApi.get(`/movie/${movieId}/reviews`);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar avaliações do filme:', error);
+      return { results: [] };
+    }
+  },
+
   // Busca informações adicionais sobre pessoas (atores, diretores, etc)
   getPersonDetails: async (personId) => {
     try {
@@ -110,4 +154,54 @@ export const tmdbService = {
     if (!path) return 'https://via.placeholder.com/500x750?text=Imagem+indispon%C3%ADvel';
     return `https://image.tmdb.org/t/p/${size}${path}`;
   },
+
+  // Busca o elenco do filme
+  getMovieCredits: async (movieId) => {
+    try {
+      const response = await tmdbApi.get(`/movie/${movieId}/credits`);
+      // Retorna os primeiros 5 atores principais
+      return response.data.cast.slice(0, 5).map(actor => ({
+        id: actor.id,
+        name: actor.name,
+        character: actor.character,
+        profile_path: actor.profile_path
+      }));
+    } catch (error) {
+      console.error('Erro ao buscar elenco do filme:', error);
+      return [];
+    }
+  },
+  
+  // Busca filmes por gênero
+  getMoviesByGenre: async (genreName, page = 1) => {
+    try {
+      // Primeiro, tenta encontrar o ID do gênero pelo nome
+      const genresResponse = await tmdbApi.get('/genre/movie/list');
+      const genre = genresResponse.data.genres.find(
+        g => g.name.toLowerCase() === genreName.toLowerCase()
+      );
+      
+      if (!genre) {
+        return { results: [], total_results: 0 };
+      }
+      
+      // Depois busca os filmes por ID do gênero
+      const response = await tmdbApi.get('/discover/movie', {
+        params: {
+          with_genres: genre.id,
+          page,
+          sort_by: 'popularity.desc',
+          include_adult: false,
+          include_video: false,
+          with_watch_monetization_types: 'flatrate',
+          language: 'pt-BR'
+        }
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar filmes por gênero:', error);
+      return { results: [], total_results: 0 };
+    }
+  }
 };

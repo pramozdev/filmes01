@@ -4,6 +4,7 @@ import SearchBar from '../components/SearchBar/SearchBar';
 import MovieCard from '../components/MovieCard/MovieCard';
 import MovieDetails from '../components/MovieDetails/MovieDetails';
 import FavoritesActions from '../components/FavoritesActions/FavoritesActions';
+import MovieCarousel from '../components/MovieCarousel/MovieCarousel';
 import './Home.css';
 
 import { Link } from 'react-router-dom';
@@ -22,6 +23,8 @@ const Home = () => {
     genre: '',
     rating: ''
   });
+  
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Carregar favoritos do localStorage ao inicializar
   useEffect(() => {
@@ -55,12 +58,27 @@ const Home = () => {
   };
 
   const handleSearch = async (query, searchFilters = {}) => {
+    if (!query.trim()) {
+      // Se a busca estiver vazia, carrega os filmes populares
+      loadPopularMovies();
+      return;
+    }
+    
     setLoading(true);
     try {
-      const data = await tmdbService.searchMovies(query);
-      let filteredMovies = data.results || [];
+      // Se houver um termo de busca, faz a busca por texto
+      const searchData = await tmdbService.searchMovies(query);
+      let filteredMovies = searchData.results || [];
       
-      // Aplicar filtros
+      // Se não houver resultados na busca, tenta buscar por gênero
+      if (filteredMovies.length === 0) {
+        const genreData = await tmdbService.getMoviesByGenre(query);
+        if (genreData && genreData.results && genreData.results.length > 0) {
+          filteredMovies = genreData.results;
+        }
+      }
+      
+      // Aplicar filtros adicionais
       if (searchFilters.year) {
         filteredMovies = filteredMovies.filter(movie => 
           movie.release_date && movie.release_date.startsWith(searchFilters.year)
@@ -73,12 +91,32 @@ const Home = () => {
         );
       }
       
-      setMovies(filteredMovies);
-      if (filteredMovies.length === 0) {
-        showMessage('Nenhum filme encontrado para sua busca', 'info');
+      // Ordenar resultados se necessário
+      if (searchFilters.sortBy) {
+        const [sortField, sortOrder] = searchFilters.sortBy.split('.');
+        filteredMovies.sort((a, b) => {
+          const valueA = sortField === 'release_date' 
+            ? new Date(a[sortField] || 0).getTime() 
+            : a[sortField] || 0;
+            
+          const valueB = sortField === 'release_date' 
+            ? new Date(b[sortField] || 0).getTime() 
+            : b[sortField] || 0;
+            
+          return sortOrder === 'asc' ? valueA - valueB : valueB - valueA;
+        });
       }
-    } catch {
-      showMessage('Erro ao buscar filmes', 'error');
+      
+      setMovies(filteredMovies);
+      
+      if (filteredMovies.length === 0) {
+        showMessage('Nenhum filme encontrado para sua busca. Tente outro termo.', 'info');
+      } else {
+        showMessage(`Encontrados ${filteredMovies.length} filmes para "${query}"`, 'success');
+      }
+    } catch (error) {
+      console.error('Erro na busca:', error);
+      showMessage('Erro ao buscar filmes. Por favor, tente novamente.', 'error');
     } finally {
       setLoading(false);
     }
@@ -146,8 +184,20 @@ const Home = () => {
     );
   }
 
+  const handleSearchTermChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    loadPopularMovies();
+  };
+
   return (
-    <div className="home">
+    <div className="home-container">
+      {/* Carrossel de filmes em destaque */}
+      <MovieCarousel />
+      
       <div className="container">
         <div className="hero-section">
           <h1 className="hero-title">
@@ -158,7 +208,15 @@ const Home = () => {
           </p>
         </div>
 
-        <SearchBar onSearch={handleSearch} loading={loading} filters={filters} setFilters={setFilters} />
+        <SearchBar 
+          onSearch={handleSearch} 
+          onClear={handleClearSearch}
+          searchTerm={searchTerm}
+          onSearchTermChange={handleSearchTermChange}
+          loading={loading} 
+          filters={filters} 
+          setFilters={setFilters}
+        />
 
         {message && (
           <div className={`message ${messageType}`}>
